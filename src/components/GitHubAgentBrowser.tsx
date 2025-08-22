@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { api, type GitHubAgentFile, type AgentExport, type Agent } from "@/lib/api";
 import { type AgentIconName } from "./CCAgents";
 import { ICON_MAP } from "./IconPicker";
+import { useI18n } from "@/lib/i18n";
 import { open } from "@tauri-apps/plugin-shell";
 
 interface GitHubAgentBrowserProps {
@@ -38,6 +39,7 @@ export const GitHubAgentBrowser: React.FC<GitHubAgentBrowserProps> = ({
   onClose,
   onImportSuccess,
 }) => {
+  const { t } = useI18n();
   const [agents, setAgents] = useState<GitHubAgentFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -98,7 +100,7 @@ export const GitHubAgentBrowser: React.FC<GitHubAgentBrowserProps> = ({
         file,
         data: null,
         loading: false,
-        error: "Failed to load agent details",
+        error: t("agents.failedToLoadDetails"),
       });
     }
   };
@@ -127,7 +129,7 @@ export const GitHubAgentBrowser: React.FC<GitHubAgentBrowserProps> = ({
       onImportSuccess();
     } catch (err) {
       console.error("Failed to import agent:", err);
-      alert(`Failed to import agent: ${err instanceof Error ? err.message : "Unknown error"}`);
+      alert(`${t("agents.failedToImport")}: ${err instanceof Error ? err.message : t("agents.unknownError")}`);
     } finally {
       setImporting(false);
     }
@@ -217,7 +219,7 @@ export const GitHubAgentBrowser: React.FC<GitHubAgentBrowserProps> = ({
               <div className="flex flex-col items-center justify-center h-64 text-center">
                 <FileJson className="h-12 w-12 text-muted-foreground mb-4" />
                 <p className="text-sm text-muted-foreground">
-                  {searchQuery ? "No agents found matching your search" : "No agents available"}
+                  {searchQuery ? t("agents.noAgentsFound") : t("agents.noAgentsAvailable")}
                 </p>
               </div>
             ) : (

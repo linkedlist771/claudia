@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { SelectComponent } from "@/components/ui/select";
 import { api } from "@/lib/api";
+import { useI18n } from "@/lib/i18n";
 
 interface MCPImportExportProps {
   /**
@@ -24,6 +25,7 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
   onImportCompleted,
   onError,
 }) => {
+  const { t } = useI18n();
   const [importingDesktop, setImportingDesktop] = useState(false);
   const [importingJson, setImportingJson] = useState(false);
   const [importScope, setImportScope] = useState("local");
@@ -53,7 +55,7 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
         
         if (failedServers.length > 0) {
           const failureDetails = failedServers
-            .map(s => `${s.name}: ${s.error || "Unknown error"}`)
+            .map(s => `${s.name}: ${s.error || t("mcp.unknownError")}`)
             .join("\n");
           onError(`Failed to import some servers:\n${failureDetails}`);
         }
@@ -62,7 +64,7 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
       }
     } catch (error: any) {
       console.error("Failed to import from Claude Desktop:", error);
-      onError(error.toString() || "Failed to import from Claude Desktop");
+      onError(error.toString() || t("mcp.failedToImportFromClaude"));
     } finally {
       setImportingDesktop(false);
     }
@@ -131,7 +133,7 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
       }
     } catch (error) {
       console.error("Failed to import JSON:", error);
-      onError("Failed to import JSON file");
+      onError(t("mcp.failedToImportJson"));
     } finally {
       setImportingJson(false);
       // Reset the input
@@ -156,7 +158,7 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
       onError("Claude Code MCP server started. You can now connect to it from other applications.");
     } catch (error) {
       console.error("Failed to start MCP server:", error);
-      onError("Failed to start Claude Code as MCP server");
+      onError(t("mcp.failedToStartServer"));
     }
   };
 

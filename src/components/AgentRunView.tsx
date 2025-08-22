@@ -18,6 +18,7 @@ import { api, type AgentRunWithMetrics } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { formatISOTimestamp } from "@/lib/date-utils";
 import { StreamMessage } from "./StreamMessage";
+import { useI18n } from "@/lib/i18n";
 import { AGENT_ICONS } from "./CCAgents";
 import type { ClaudeStreamMessage } from "./AgentExecution";
 import { ErrorBoundary } from "./ErrorBoundary";
@@ -48,6 +49,7 @@ export const AgentRunView: React.FC<AgentRunViewProps> = ({
   onBack,
   className,
 }) => {
+  const { t } = useI18n();
   const [run, setRun] = useState<AgentRunWithMetrics | null>(null);
   const [messages, setMessages] = useState<ClaudeStreamMessage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -101,7 +103,7 @@ export const AgentRunView: React.FC<AgentRunViewProps> = ({
       }
     } catch (err) {
       console.error("Failed to load run:", err);
-      setError("Failed to load execution details");
+      setError(t("general.failedToLoadDetails"));
     } finally {
       setLoading(false);
     }
@@ -196,7 +198,7 @@ export const AgentRunView: React.FC<AgentRunViewProps> = ({
           type: "result",
           subtype: "error",
           is_error: true,
-          result: "Execution stopped by user",
+          result: t("general.executionStopped"),
           duration_ms: 0,
           usage: {
             input_tokens: 0,
@@ -233,7 +235,7 @@ export const AgentRunView: React.FC<AgentRunViewProps> = ({
   if (error || !run) {
     return (
       <div className={cn("flex flex-col items-center justify-center h-full", className)}>
-        <p className="text-destructive mb-4">{error || "Run not found"}</p>
+        <p className="text-destructive mb-4">{error || t("general.runNotFound")}</p>
         <Button onClick={onBack}>Go Back</Button>
       </div>
     );

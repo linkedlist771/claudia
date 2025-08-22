@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/lib/i18n";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import {
@@ -81,6 +82,7 @@ interface QueryResult {
  * StorageTab component - A beautiful SQLite database viewer/editor
  */
 export const StorageTab: React.FC = () => {
+  const { t } = useI18n();
   const [tables, setTables] = useState<TableInfo[]>([]);
   const [selectedTable, setSelectedTable] = useState<string>("");
   const [tableData, setTableData] = useState<TableData | null>(null);
@@ -131,7 +133,7 @@ export const StorageTab: React.FC = () => {
       }
     } catch (err) {
       console.error("Failed to load tables:", err);
-      setError("Failed to load tables");
+      setError(t("storage.failedToLoadTables"));
     } finally {
       setLoading(false);
     }
@@ -156,7 +158,7 @@ export const StorageTab: React.FC = () => {
       setCurrentPage(page);
     } catch (err) {
       console.error("Failed to load table data:", err);
-      setError("Failed to load table data");
+      setError(t("storage.failedToLoadData"));
     } finally {
       setLoading(false);
     }
@@ -203,7 +205,7 @@ export const StorageTab: React.FC = () => {
       setEditingRow(null);
     } catch (err) {
       console.error("Failed to update row:", err);
-      setError("Failed to update row");
+      setError(t("storage.failedToUpdate"));
     } finally {
       setLoading(false);
     }
@@ -223,7 +225,7 @@ export const StorageTab: React.FC = () => {
       setDeletingRow(null);
     } catch (err) {
       console.error("Failed to delete row:", err);
-      setError("Failed to delete row");
+      setError(t("storage.failedToDelete"));
     } finally {
       setLoading(false);
     }
@@ -242,7 +244,7 @@ export const StorageTab: React.FC = () => {
       setNewRow(null);
     } catch (err) {
       console.error("Failed to insert row:", err);
-      setError("Failed to insert row");
+      setError(t("storage.failedToInsert"));
     } finally {
       setLoading(false);
     }
@@ -267,7 +269,7 @@ export const StorageTab: React.FC = () => {
       }
     } catch (err) {
       console.error("Failed to execute SQL:", err);
-      setSqlError(err instanceof Error ? err.message : "Failed to execute SQL");
+      setSqlError(err instanceof Error ? err.message : t("storage.failedToExecute"));
     } finally {
       setLoading(false);
     }
@@ -290,7 +292,7 @@ export const StorageTab: React.FC = () => {
       });
     } catch (err) {
       console.error("Failed to reset database:", err);
-      setError("Failed to reset database");
+      setError(t("storage.failedToReset"));
       setToast({
         message: "Reset Failed: Failed to reset the database. Please try again.",
         type: "error",
@@ -363,7 +365,7 @@ export const StorageTab: React.FC = () => {
           <div className="flex items-center gap-3">
             <Select value={selectedTable} onValueChange={setSelectedTable}>
               <SelectTrigger className="w-[200px] h-8 text-xs">
-                <SelectValue placeholder="Select a table">
+                <SelectValue placeholder={t("storage.selectTable")}>
                   {selectedTable && (
                     <div className="flex items-center gap-2">
                       <Table className="h-3 w-3" />
@@ -639,7 +641,7 @@ export const StorageTab: React.FC = () => {
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                "Update"
+                {t("common.update")}
               )}
             </Button>
           </DialogFooter>
@@ -713,7 +715,7 @@ export const StorageTab: React.FC = () => {
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                "Insert"
+                {t("common.add")}
               )}
             </Button>
           </DialogFooter>
@@ -760,7 +762,7 @@ export const StorageTab: React.FC = () => {
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                "Delete"
+                {t("common.delete")}
               )}
             </Button>
           </DialogFooter>
@@ -800,7 +802,7 @@ export const StorageTab: React.FC = () => {
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                "Reset Database"
+                {t("storage.resetDatabase")}
               )}
             </Button>
           </DialogFooter>
@@ -934,7 +936,7 @@ export const StorageTab: React.FC = () => {
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                "Execute"
+                {t("storage.execute")}
               )}
             </Button>
           </DialogFooter>

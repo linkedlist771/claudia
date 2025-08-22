@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useI18n } from "@/lib/i18n";
 import { api, type MCPServer } from "@/lib/api";
 import { useTrackEvent } from "@/hooks";
 
@@ -50,6 +51,7 @@ export const MCPServerList: React.FC<MCPServerListProps> = ({
   onServerRemoved,
   onRefresh,
 }) => {
+  const { t } = useI18n();
   const [removingServer, setRemovingServer] = useState<string | null>(null);
   const [testingServer, setTestingServer] = useState<string | null>(null);
   const [expandedServers, setExpandedServers] = useState<Set<string>>(new Set());
@@ -308,7 +310,7 @@ export const MCPServerList: React.FC<MCPServerListProps> = ({
                         className="h-6 px-2 text-xs hover:bg-primary/10"
                       >
                         <Copy className="h-3 w-3 mr-1" />
-                        {isCopied ? "Copied!" : "Copy"}
+                        {isCopied ? t("general.copied") : t("general.copy")}
                       </Button>
                       <Button
                         variant="ghost"

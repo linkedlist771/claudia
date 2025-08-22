@@ -18,6 +18,7 @@ import { UsageDashboard } from "@/components/UsageDashboard";
 import { MCPManager } from "@/components/MCPManager";
 import { NFOCredits } from "@/components/NFOCredits";
 import { ClaudeBinaryDialog } from "@/components/ClaudeBinaryDialog";
+import { useI18n } from "@/lib/i18n";
 import { Toast, ToastContainer } from "@/components/ui/toast";
 import { ProjectSettings } from '@/components/ProjectSettings';
 import { TabManager } from "@/components/TabManager";
@@ -47,6 +48,7 @@ type View =
  * AppContent component - Contains the main app logic, wrapped by providers
  */
 function AppContent() {
+  const { t } = useI18n();
   const [view, setView] = useState<View>("tabs");
   const { createClaudeMdTab, createSettingsTab, createUsageTab, createMCPTab, createAgentsTab } = useTabState();
   const [projects, setProjects] = useState<Project[]>([]);
@@ -409,7 +411,7 @@ function AppContent() {
         open={showClaudeBinaryDialog}
         onOpenChange={setShowClaudeBinaryDialog}
         onSuccess={() => {
-          setToast({ message: "Claude binary path saved successfully", type: "success" });
+          setToast({ message: t("general.claudeBinaryPathSaved"), type: "success" });
           // Trigger a refresh of the Claude version check
           window.location.reload();
         }}

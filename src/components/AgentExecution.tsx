@@ -34,6 +34,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { HooksEditor } from "./HooksEditor";
 import { useTrackEvent, useComponentMetrics, useFeatureAdoptionTracking } from "@/hooks";
 import { useTabState } from "@/hooks/useTabState";
+import { useI18n } from "@/lib/i18n";
 
 interface AgentExecutionProps {
   /**
@@ -88,6 +89,7 @@ export const AgentExecution: React.FC<AgentExecutionProps> = ({
   onBack,
   className,
 }) => {
+  const { t } = useI18n();
   const [projectPath] = useState(initialProjectPath || "");
   const [task, setTask] = useState(agent.default_task || "");
   const [model, setModel] = useState(agent.model || "sonnet");
@@ -347,7 +349,7 @@ export const AgentExecution: React.FC<AgentExecutionProps> = ({
         const duration = executionStartTime ? Date.now() - executionStartTime : undefined;
         setExecutionStartTime(null);
         if (!event.payload) {
-          setError("Agent execution failed");
+          setError(t("agents.executionFailed"));
           // Update tab status to error
           if (tabId) {
             updateTabStatus(tabId, 'error');
@@ -372,7 +374,7 @@ export const AgentExecution: React.FC<AgentExecutionProps> = ({
       const cancelUnlisten = await listen<boolean>(`agent-cancelled:${executionRunId}`, () => {
         setIsRunning(false);
         setExecutionStartTime(null);
-        setError("Agent execution was cancelled");
+        setError(t("agents.executionCancelled"));
         // Update tab status to idle when cancelled
         if (tabId) {
           updateTabStatus(tabId, 'idle');
@@ -394,7 +396,7 @@ export const AgentExecution: React.FC<AgentExecutionProps> = ({
         type: "result",
         subtype: "error",
         is_error: true,
-        result: `Failed to execute agent: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        result: `${t("agents.failedToExecute")}: ${err instanceof Error ? err.message : t("agents.unknownError")}`,
         duration_ms: 0,
         usage: {
           input_tokens: 0,
@@ -437,7 +439,7 @@ export const AgentExecution: React.FC<AgentExecutionProps> = ({
         type: "result",
         subtype: "error",
         is_error: true,
-        result: "Execution stopped by user",
+        result: t("general.executionStopped"),
         duration_ms: elapsedTime * 1000,
         usage: {
           input_tokens: totalTokens,
@@ -459,7 +461,7 @@ export const AgentExecution: React.FC<AgentExecutionProps> = ({
         type: "result",
         subtype: "error",
         is_error: true,
-        result: `Failed to stop execution: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        result: `${t("agents.failedToStop")}: ${err instanceof Error ? err.message : t("agents.unknownError")}`,
         duration_ms: elapsedTime * 1000,
         usage: {
           input_tokens: totalTokens,
@@ -473,7 +475,7 @@ export const AgentExecution: React.FC<AgentExecutionProps> = ({
     if (isRunning) {
       // Show confirmation dialog before navigating away during execution
       const shouldLeave = window.confirm(
-        "An agent is currently running. If you navigate away, the agent will continue running in the background. You can view running sessions in the 'Running Sessions' tab within CC Agents.\n\nDo you want to continue?"
+        t("agents.continueNavigation")
       );
       if (!shouldLeave) {
         return;
@@ -574,14 +576,14 @@ export const AgentExecution: React.FC<AgentExecutionProps> = ({
                 size="icon"
                 onClick={handleBackWithConfirmation}
                 className="h-9 w-9 -ml-2"
-                title="Back"
+                title={t("general.back")}
               >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
               <div>
                 <h1 className="text-heading-1">{agent.name}</h1>
                 <p className="mt-1 text-body-small text-muted-foreground">
-                  {isRunning ? 'Running' : messages.length > 0 ? 'Complete' : 'Ready'} • {model === 'opus' ? 'Claude 4 Opus' : 'Claude 4 Sonnet'}
+                  {isRunning ? t("status.running") : messages.length > 0 ? t("status.complete") : t("status.ready")} • {model === 'opus' ? 'Claude 4 Opus' : 'Claude 4 Sonnet'}
                 </p>
               </div>
             </div>
@@ -768,9 +770,9 @@ export const AgentExecution: React.FC<AgentExecutionProps> = ({
               {messages.length === 0 && !isRunning && (
                 <div className="flex flex-col items-center justify-center h-full text-center">
                   <Terminal className="h-16 w-16 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium mb-2">Ready to Execute</h3>
+                  <h3 className="text-lg font-medium mb-2">{t("status.readyToExecute")}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Enter a task to run the agent
+                    {t("agents.enterTaskToRun")}
                   </p>
                 </div>
               )}
@@ -836,7 +838,7 @@ export const AgentExecution: React.FC<AgentExecutionProps> = ({
               {isRunning && (
                 <div className="flex items-center gap-1">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-xs text-green-600 font-medium">Running</span>
+                  <span className="text-xs text-green-600 font-medium">{t("status.running")}</span>
                 </div>
               )}
             </div>
@@ -909,9 +911,9 @@ export const AgentExecution: React.FC<AgentExecutionProps> = ({
               {messages.length === 0 && !isRunning && (
                 <div className="flex flex-col items-center justify-center h-full text-center">
                   <Terminal className="h-16 w-16 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium mb-2">Ready to Execute</h3>
+                  <h3 className="text-lg font-medium mb-2">{t("status.readyToExecute")}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Enter a task to run the agent
+                    {t("agents.enterTaskToRun")}
                   </p>
                 </div>
               )}

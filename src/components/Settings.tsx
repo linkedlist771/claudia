@@ -29,6 +29,7 @@ import { SlashCommandsManager } from "./SlashCommandsManager";
 import { ProxySettings } from "./ProxySettings";
 import { AnalyticsConsent } from "./AnalyticsConsent";
 import { useTheme, useTrackEvent } from "@/hooks";
+import { useI18n } from "@/lib/i18n";
 import { analytics } from "@/lib/analytics";
 import { TabPersistenceService } from "@/services/tabPersistence";
 
@@ -61,6 +62,7 @@ interface EnvironmentVariable {
 export const Settings: React.FC<SettingsProps> = ({
   className,
 }) => {
+  const { t } = useI18n();
   const [settings, setSettings] = useState<ClaudeSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -245,7 +247,7 @@ export const Settings: React.FC<SettingsProps> = ({
     } catch (err) {
       console.error("Failed to save settings:", err);
       setError("Failed to save settings.");
-      setToast({ message: "Failed to save settings", type: "error" });
+      setToast({ message: t("general.failedToSaveSettings"), type: "error" });
     } finally {
       setSaving(false);
     }
@@ -692,12 +694,12 @@ export const Settings: React.FC<SettingsProps> = ({
                             await analytics.enable();
                             setAnalyticsEnabled(true);
                             trackEvent.settingsChanged('analytics_enabled', true);
-                            setToast({ message: "Analytics enabled", type: "success" });
+                            setToast({ message: t("general.analyticsEnabled"), type: "success" });
                           } else {
                             await analytics.disable();
                             setAnalyticsEnabled(false);
                             trackEvent.settingsChanged('analytics_enabled', false);
-                            setToast({ message: "Analytics disabled", type: "success" });
+                            setToast({ message: t("general.analyticsDisabled"), type: "success" });
                           }
                         }}
                       />
@@ -937,7 +939,7 @@ export const Settings: React.FC<SettingsProps> = ({
                           className="flex items-center gap-2"
                         >
                           <Input
-                            placeholder="KEY"
+                            placeholder={t("general.keyPlaceholder")}
                             value={envVar.key}
                             onChange={(e) => updateEnvVar(envVar.id, "key", e.target.value)}
                             className="flex-1 font-mono text-sm"

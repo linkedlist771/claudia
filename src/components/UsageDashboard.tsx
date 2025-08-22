@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 interface UsageDashboardProps {
   /**
@@ -28,6 +29,7 @@ const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes cache - increased for bette
  * Optimized UsageDashboard component with caching and progressive loading
  */
 export const UsageDashboard: React.FC<UsageDashboardProps> = ({ }) => {
+  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<UsageStats | null>(null);
@@ -335,7 +337,7 @@ export const UsageDashboard: React.FC<UsageDashboardProps> = ({ }) => {
                     onClick={() => setSelectedDateRange(range)}
                     disabled={loading}
                   >
-                    {range === "all" ? "All Time" : range === "7d" ? "Last 7 Days" : "Last 30 Days"}
+                    {range === "all" ? t("dashboard.allTime") : range === "7d" ? t("dashboard.last7Days") : t("dashboard.last30Days")}
                   </Button>
                 ))}
               </div>

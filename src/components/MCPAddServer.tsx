@@ -8,6 +8,7 @@ import { SelectComponent } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { api } from "@/lib/api";
 import { useTrackEvent } from "@/hooks";
+import { useI18n } from "@/lib/i18n";
 
 interface MCPAddServerProps {
   /**
@@ -34,6 +35,7 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
   onServerAdded,
   onError,
 }) => {
+  const { t } = useI18n();
   const [transport, setTransport] = useState<"stdio" | "sse">("stdio");
   const [saving, setSaving] = useState(false);
   
@@ -101,12 +103,12 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
    */
   const handleAddStdioServer = async () => {
     if (!stdioName.trim()) {
-      onError("Server name is required");
+      onError(t("mcp.serverNameRequired"));
       return;
     }
     
     if (!stdioCommand.trim()) {
-      onError("Command is required");
+      onError(t("mcp.commandRequired"));
       return;
     }
     
@@ -152,7 +154,7 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
         onError(result.message);
       }
     } catch (error) {
-      onError("Failed to add server");
+      onError(t("mcp.failedToAdd"));
       console.error("Failed to add stdio server:", error);
     } finally {
       setSaving(false);
@@ -164,12 +166,12 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
    */
   const handleAddSseServer = async () => {
     if (!sseName.trim()) {
-      onError("Server name is required");
+      onError(t("mcp.serverNameRequired"));
       return;
     }
     
     if (!sseUrl.trim()) {
-      onError("URL is required");
+      onError(t("mcp.urlRequired"));
       return;
     }
     
@@ -211,7 +213,7 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
         onError(result.message);
       }
     } catch (error) {
-      onError("Failed to add server");
+      onError(t("mcp.failedToAdd"));
       console.error("Failed to add SSE server:", error);
     } finally {
       setSaving(false);

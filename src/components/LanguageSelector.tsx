@@ -1,5 +1,4 @@
 import React from 'react';
-import { Languages } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,6 +8,30 @@ import {
 import { Button } from './ui/button';
 import { useI18n, languages, type Language } from '@/lib/i18n';
 
+// 文A 图标组件
+const LanguageIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-4 w-4"
+  >
+    <text
+      x="12"
+      y="16"
+      textAnchor="middle"
+      fontSize="14"
+      fontWeight="bold"
+      fill="currentColor"
+      fontFamily="sans-serif"
+    >
+      文A
+    </text>
+  </svg>
+);
+
 export function LanguageSelector() {
   const { language, setLanguage } = useI18n();
 
@@ -16,7 +39,7 @@ export function LanguageSelector() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="h-8 w-8">
-          <Languages className="h-4 w-4" />
+          <LanguageIcon />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

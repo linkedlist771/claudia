@@ -13,6 +13,7 @@ import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
 import { useTheme } from "@/hooks";
+import { useI18n } from "@/lib/i18n";
 import type { ClaudeStreamMessage } from "./AgentExecution";
 import {
   TodoWidget,
@@ -57,6 +58,7 @@ const StreamMessageComponent: React.FC<StreamMessageProps> = ({ message, classNa
   
   // Get current theme
   const { theme } = useTheme();
+  const { t } = useI18n();
   const syntaxTheme = getClaudeSyntaxTheme(theme);
   
   // Extract all tool results from stream messages
@@ -653,7 +655,7 @@ const StreamMessageComponent: React.FC<StreamMessageProps> = ({ message, classNa
               )}
               <div className="flex-1 space-y-2">
                 <h4 className="font-semibold text-sm">
-                  {isError ? "Execution Failed" : "Execution Complete"}
+                  {isError ? t("execution.executionFailed") : t("execution.executionComplete")}
                 </h4>
                 
                 {message.result && (

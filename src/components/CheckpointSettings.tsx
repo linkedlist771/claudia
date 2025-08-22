@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { api, type CheckpointStrategy } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 interface CheckpointSettingsProps {
   sessionId: string;
@@ -41,6 +42,7 @@ export const CheckpointSettings: React.FC<CheckpointSettingsProps> = ({
   projectPath,
   className,
 }) => {
+  const { t } = useI18n();
   const [autoCheckpointEnabled, setAutoCheckpointEnabled] = useState(true);
   const [checkpointStrategy, setCheckpointStrategy] = useState<CheckpointStrategy>("smart");
   const [totalCheckpoints, setTotalCheckpoints] = useState(0);
@@ -51,10 +53,10 @@ export const CheckpointSettings: React.FC<CheckpointSettingsProps> = ({
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const strategyOptions: SelectOption[] = [
-    { value: "manual", label: "Manual Only" },
-    { value: "per_prompt", label: "After Each Prompt" },
-    { value: "per_tool_use", label: "After Tool Use" },
-    { value: "smart", label: "Smart (Recommended)" },
+    { value: "manual", label: t("checkpoints.manualOnly") },
+    { value: "per_prompt", label: t("checkpoints.afterEachPrompt") },
+    { value: "per_tool_use", label: t("checkpoints.afterToolUse") },
+    { value: "smart", label: t("checkpoints.smartRecommended") },
   ];
 
   useEffect(() => {
@@ -72,7 +74,7 @@ export const CheckpointSettings: React.FC<CheckpointSettingsProps> = ({
       setTotalCheckpoints(settings.total_checkpoints);
     } catch (err) {
       console.error("Failed to load checkpoint settings:", err);
-      setError("Failed to load checkpoint settings");
+      setError(t("checkpoints.failedToLoadSettings"));
     } finally {
       setIsLoading(false);
     }
@@ -92,11 +94,11 @@ export const CheckpointSettings: React.FC<CheckpointSettingsProps> = ({
         checkpointStrategy
       );
       
-      setSuccessMessage("Settings saved successfully");
+      setSuccessMessage(t("checkpoints.settingsSavedSuccess"));
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
       console.error("Failed to save checkpoint settings:", err);
-      setError("Failed to save checkpoint settings");
+      setError(t("checkpoints.failedToSaveSettings"));
     } finally {
       setIsSaving(false);
     }
@@ -122,7 +124,7 @@ export const CheckpointSettings: React.FC<CheckpointSettingsProps> = ({
       await loadSettings();
     } catch (err) {
       console.error("Failed to cleanup checkpoints:", err);
-      setError("Failed to cleanup checkpoints");
+      setError(t("checkpoints.failedToCleanup"));
     } finally {
       setIsLoading(false);
     }
@@ -215,10 +217,10 @@ export const CheckpointSettings: React.FC<CheckpointSettingsProps> = ({
             disabled={isLoading || !autoCheckpointEnabled}
           />
           <p className="text-caption text-muted-foreground">
-            {checkpointStrategy === "manual" && "Checkpoints will only be created manually"}
-            {checkpointStrategy === "per_prompt" && "A checkpoint will be created after each user prompt"}
-            {checkpointStrategy === "per_tool_use" && "A checkpoint will be created after each tool use"}
-            {checkpointStrategy === "smart" && "Checkpoints will be created after destructive operations"}
+            {checkpointStrategy === "manual" && t("checkpoints.manualDescription")}
+            {checkpointStrategy === "per_prompt" && t("checkpoints.perPromptDescription")}
+            {checkpointStrategy === "per_tool_use" && t("checkpoints.perToolUseDescription")}
+            {checkpointStrategy === "smart" && t("checkpoints.smartDescription")}
           </p>
         </div>
 

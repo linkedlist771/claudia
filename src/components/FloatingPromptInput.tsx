@@ -24,6 +24,7 @@ import { SlashCommandPicker } from "./SlashCommandPicker";
 import { ImagePreview } from "./ImagePreview";
 import { type FileEntry, type SlashCommand } from "@/lib/api";
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
+import { useI18n } from "@/lib/i18n";
 
 interface FloatingPromptInputProps {
   /**
@@ -82,58 +83,6 @@ type ThinkingModeConfig = {
   color: string;
   shortName: string;
 };
-
-const THINKING_MODES: ThinkingModeConfig[] = [
-  {
-    id: "auto",
-    name: "Auto",
-    description: "Let Claude decide",
-    level: 0,
-    icon: <Sparkles className="h-3.5 w-3.5" />,
-    color: "text-muted-foreground",
-    shortName: "A"
-  },
-  {
-    id: "think",
-    name: "Think",
-    description: "Basic reasoning",
-    level: 1,
-    phrase: "think",
-    icon: <Lightbulb className="h-3.5 w-3.5" />,
-    color: "text-primary",
-    shortName: "T"
-  },
-  {
-    id: "think_hard",
-    name: "Think Hard",
-    description: "Deeper analysis",
-    level: 2,
-    phrase: "think hard",
-    icon: <Brain className="h-3.5 w-3.5" />,
-    color: "text-primary",
-    shortName: "T+"
-  },
-  {
-    id: "think_harder",
-    name: "Think Harder",
-    description: "Extensive reasoning",
-    level: 3,
-    phrase: "think harder",
-    icon: <Cpu className="h-3.5 w-3.5" />,
-    color: "text-primary",
-    shortName: "T++"
-  },
-  {
-    id: "ultrathink",
-    name: "Ultrathink",
-    description: "Maximum computation",
-    level: 4,
-    phrase: "ultrathink",
-    icon: <Rocket className="h-3.5 w-3.5" />,
-    color: "text-primary",
-    shortName: "Ultra"
-  }
-];
 
 /**
  * ThinkingModeIndicator component - Shows visual indicator bars for thinking level
@@ -212,6 +161,50 @@ const FloatingPromptInputInner = (
   }: FloatingPromptInputProps,
   ref: React.Ref<FloatingPromptInputRef>,
 ) => {
+  const { t } = useI18n();
+  
+  const THINKING_MODES: ThinkingModeConfig[] = [
+    {
+      id: "auto",
+      name: t("prompt.auto"),
+      description: t("prompt.autoDescription"),
+      level: 0,
+      icon: <Sparkles className="h-3.5 w-3.5" />,
+      color: "text-muted-foreground",
+      shortName: "A"
+    },
+    {
+      id: "think",
+      name: t("prompt.think"),
+      description: t("prompt.thinkDescription"),
+      level: 1,
+      phrase: "think",
+      icon: <Lightbulb className="h-3.5 w-3.5" />,
+      color: "text-primary",
+      shortName: "T"
+    },
+    {
+      id: "think_hard",
+      name: t("prompt.thinkHard"),
+      description: "Deeper analysis",
+      level: 2,
+      phrase: "think hard",
+      icon: <Brain className="h-3.5 w-3.5" />,
+      color: "text-primary",
+      shortName: "T+"
+    },
+    {
+      id: "think_harder",
+      name: "Think Harder",
+      description: "Extensive reasoning",
+      level: 3,
+      phrase: "think harder",
+      icon: <Cpu className="h-3.5 w-3.5" />,
+      color: "text-primary",
+      shortName: "T++"
+    }
+  ];
+  
   const [prompt, setPrompt] = useState("");
   const [selectedModel, setSelectedModel] = useState<"sonnet" | "opus">(defaultModel);
   const [selectedThinkingMode, setSelectedThinkingMode] = useState<ThinkingMode>("auto");

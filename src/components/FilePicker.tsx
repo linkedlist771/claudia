@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import type { FileEntry } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 // Global caches that persist across component instances
 const globalDirectoryCache = new Map<string, FileEntry[]>();
@@ -101,6 +102,7 @@ export const FilePicker: React.FC<FilePickerProps> = ({
   initialQuery = "",
   className,
 }) => {
+  const { t } = useI18n();
   const searchQuery = initialQuery;
   
   const [currentPath, setCurrentPath] = useState(basePath);
@@ -277,7 +279,7 @@ export const FilePicker: React.FC<FilePickerProps> = ({
       console.error('[FilePicker] Error details:', err);
       // Only set error if we don't have cached data to show
       if (!globalDirectoryCache.has(path)) {
-        setError(err instanceof Error ? err.message : 'Failed to load directory');
+        setError(err instanceof Error ? err.message : t('filePicker.failedToLoad'));
       }
     } finally {
       setIsLoading(false);
@@ -318,7 +320,7 @@ export const FilePicker: React.FC<FilePickerProps> = ({
       // Only set error if we don't have cached data to show
       const cacheKey = `${basePath}:${query}`;
       if (!globalSearchCache.has(cacheKey)) {
-        setError(err instanceof Error ? err.message : 'Search failed');
+        setError(err instanceof Error ? err.message : t('filePicker.searchFailed'));
       }
     } finally {
       setIsLoading(false);
@@ -402,7 +404,7 @@ export const FilePicker: React.FC<FilePickerProps> = ({
         {/* Show loading only if no cached data */}
         {isLoading && displayEntries.length === 0 && (
           <div className="flex items-center justify-center h-full">
-            <span className="text-sm text-muted-foreground">Loading...</span>
+            <span className="text-sm text-muted-foreground">{t('filePicker.loading')}</span>
           </div>
         )}
 
@@ -423,7 +425,7 @@ export const FilePicker: React.FC<FilePickerProps> = ({
           <div className="flex flex-col items-center justify-center h-full">
             <Search className="h-8 w-8 text-muted-foreground mb-2" />
             <span className="text-sm text-muted-foreground">
-              {searchQuery.trim() ? 'No files found' : 'Empty directory'}
+            {searchQuery.trim() ? t('filePicker.noFilesFound') : t('filePicker.emptyDirectory')}
             </span>
           </div>
         )}
@@ -484,7 +486,7 @@ export const FilePicker: React.FC<FilePickerProps> = ({
       {/* Footer */}
       <div className="border-t border-border p-2">
         <p className="text-xs text-muted-foreground text-center">
-          ↑↓ Navigate • Enter Select • → Enter Directory • ← Go Back • Esc Close
+          {t('filePicker.navigate')} • {t('filePicker.select')} • {t('filePicker.enterDirectory')} • {t('filePicker.goBack')} • {t('filePicker.close')}
         </p>
       </div>
     </motion.div>
