@@ -641,7 +641,7 @@ export const StorageTab: React.FC = () => {
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                {t("common.update")}
+                t("common.update")
               )}
             </Button>
           </DialogFooter>
@@ -715,7 +715,7 @@ export const StorageTab: React.FC = () => {
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                {t("common.add")}
+                t("common.add")
               )}
             </Button>
           </DialogFooter>
@@ -762,7 +762,7 @@ export const StorageTab: React.FC = () => {
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                {t("common.delete")}
+                t("common.delete")
               )}
             </Button>
           </DialogFooter>
@@ -802,7 +802,7 @@ export const StorageTab: React.FC = () => {
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                {t("storage.resetDatabase")}
+                t("storage.resetDatabase")
               )}
             </Button>
           </DialogFooter>
@@ -936,7 +936,7 @@ export const StorageTab: React.FC = () => {
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                {t("storage.execute")}
+                t("storage.execute")
               )}
             </Button>
           </DialogFooter>

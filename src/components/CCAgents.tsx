@@ -424,7 +424,7 @@ export const CCAgents: React.FC<CCAgentsProps> = ({ onBack, className }) => {
                                   title={t("general.executeAgent")}
                                 >
                                   <Play className="h-3 w-3" />
-                                  Execute
+                                  {t('agents.execute')}
                                 </Button>
                                 <Button
                                   size="sm"
@@ -434,7 +434,7 @@ export const CCAgents: React.FC<CCAgentsProps> = ({ onBack, className }) => {
                                   title={t("general.editAgent")}
                                 >
                                   <Edit className="h-3 w-3" />
-                                  Edit
+                                  {t('common.edit')}
                                 </Button>
                                 <Button
                                   size="sm"
@@ -444,7 +444,7 @@ export const CCAgents: React.FC<CCAgentsProps> = ({ onBack, className }) => {
                                   title="Export agent to .claudia.json"
                                 >
                                   <Upload className="h-3 w-3" />
-                                  Export
+                                  {t('agents.export')}
                                 </Button>
                                 <Button
                                   size="sm"
@@ -454,7 +454,7 @@ export const CCAgents: React.FC<CCAgentsProps> = ({ onBack, className }) => {
                                   title={t("general.deleteAgent")}
                                 >
                                   <Trash2 className="h-3 w-3" />
-                                  Delete
+                                  {t('common.delete')}
                                 </Button>
                               </CardFooter>
                             </Card>
@@ -472,7 +472,7 @@ export const CCAgents: React.FC<CCAgentsProps> = ({ onBack, className }) => {
                           onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                           disabled={currentPage === 1}
                         >
-                          Previous
+                          {t('navigation.previous')}
                         </Button>
                         <span className="flex items-center px-3 text-body-small">
                           Page {currentPage} of {totalPages}
@@ -483,7 +483,7 @@ export const CCAgents: React.FC<CCAgentsProps> = ({ onBack, className }) => {
                           onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                           disabled={currentPage === totalPages}
                         >
-                          Next
+                          {t('navigation.next')}
                         </Button>
                       </div>
                     )}
@@ -496,7 +496,7 @@ export const CCAgents: React.FC<CCAgentsProps> = ({ onBack, className }) => {
                 <div className="overflow-hidden">
                   <div className="flex items-center gap-2 mb-4">
                     <History className="h-5 w-5 text-muted-foreground" />
-                    <h2 className="text-heading-4">Recent Executions</h2>
+                    <h2 className="text-heading-4">{t('agents.recentExecutions')}</h2>
                   </div>
                   {runsLoading ? (
                     <div className="flex items-center justify-center h-32">

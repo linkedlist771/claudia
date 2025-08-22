@@ -24,7 +24,6 @@ import { ProjectSettings } from '@/components/ProjectSettings';
 import { TabManager } from "@/components/TabManager";
 import { TabContent } from "@/components/TabContent";
 import { useTabState } from "@/hooks/useTabState";
-import { AnalyticsConsentBanner } from "@/components/AnalyticsConsent";
 import { useAppLifecycle, useTrackEvent } from "@/hooks";
 import { StartupIntro } from "@/components/StartupIntro";
 
@@ -50,7 +49,7 @@ type View =
 function AppContent() {
   const { t } = useI18n();
   const [view, setView] = useState<View>("tabs");
-  const { createClaudeMdTab, createSettingsTab, createUsageTab, createMCPTab, createAgentsTab } = useTabState();
+  const { createClaudeMdTab, createSettingsTab, createUsageTab, createMCPTab, createAgentsTab, createEnvDepsTab } = useTabState();
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -381,6 +380,7 @@ function AppContent() {
         onClaudeClick={() => createClaudeMdTab()}
         onMCPClick={() => createMCPTab()}
         onSettingsClick={() => createSettingsTab()}
+        onEnvDepsClick={() => createEnvDepsTab()}
         onInfoClick={() => setShowNFO(true)}
       />
       
@@ -393,10 +393,6 @@ function AppContent() {
         onInfoClick={() => setShowNFO(true)}
         onAgentsClick={() => setShowAgentsModal(true)}
       /> */}
-      
-      {/* Analytics Consent Banner */}
-      <AnalyticsConsentBanner />
-      
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">
         {renderContent()}

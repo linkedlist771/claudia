@@ -24,6 +24,7 @@ interface UseTabStateReturn {
   createClaudeFileTab: (fileId: string, fileName: string) => string;
   createCreateAgentTab: () => string;
   createImportAgentTab: () => string;
+  createEnvDepsTab: () => string | null;
   closeTab: (id: string, force?: boolean) => Promise<boolean>;
   closeCurrentTab: () => Promise<boolean>;
   switchToTab: (id: string) => void;
@@ -252,6 +253,23 @@ export const useTabState = (): UseTabStateReturn => {
     });
   }, [addTab, tabs, setActiveTab]);
 
+  const createEnvDepsTab = useCallback((): string | null => {
+    // Check if env-deps tab already exists (singleton)
+    const existingTab = tabs.find(tab => tab.type === 'env-deps');
+    if (existingTab) {
+      setActiveTab(existingTab.id);
+      return existingTab.id;
+    }
+
+    return addTab({
+      type: 'env-deps',
+      title: '环境依赖配置',
+      status: 'idle',
+      hasUnsavedChanges: false,
+      icon: 'package'
+    });
+  }, [addTab, tabs, setActiveTab]);
+
   const closeTab = useCallback(async (id: string, force: boolean = false): Promise<boolean> => {
     const tab = getTabById(id);
     if (!tab) return true;
@@ -344,6 +362,7 @@ export const useTabState = (): UseTabStateReturn => {
     createClaudeFileTab,
     createCreateAgentTab,
     createImportAgentTab,
+    createEnvDepsTab,
     closeTab,
     closeCurrentTab,
     switchToTab: setActiveTab,

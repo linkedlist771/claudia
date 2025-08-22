@@ -210,7 +210,7 @@ export const UsageDashboard: React.FC<UsageDashboardProps> = ({ }) => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="p-4 shimmer-hover">
           <div>
-            <p className="text-caption text-muted-foreground">Total Cost</p>
+            <p className="text-caption text-muted-foreground">{t('usage.totalCost')}</p>
             <p className="text-display-2 mt-1">
               {formatCurrency(stats.total_cost)}
             </p>
@@ -219,7 +219,7 @@ export const UsageDashboard: React.FC<UsageDashboardProps> = ({ }) => {
 
         <Card className="p-4 shimmer-hover">
           <div>
-            <p className="text-caption text-muted-foreground">Total Sessions</p>
+            <p className="text-caption text-muted-foreground">{t('usage.totalSessions')}</p>
             <p className="text-display-2 mt-1">
               {formatNumber(stats.total_sessions)}
             </p>
@@ -228,7 +228,7 @@ export const UsageDashboard: React.FC<UsageDashboardProps> = ({ }) => {
 
         <Card className="p-4 shimmer-hover">
           <div>
-            <p className="text-caption text-muted-foreground">Total Tokens</p>
+            <p className="text-caption text-muted-foreground">{t('usage.totalTokens')}</p>
             <p className="text-display-2 mt-1">
               {formatTokens(stats.total_tokens)}
             </p>
@@ -237,7 +237,7 @@ export const UsageDashboard: React.FC<UsageDashboardProps> = ({ }) => {
 
         <Card className="p-4 shimmer-hover">
           <div>
-            <p className="text-caption text-muted-foreground">Avg Cost/Session</p>
+            <p className="text-caption text-muted-foreground">{t('usage.avgCostPerSession')}</p>
             <p className="text-display-2 mt-1">
               {formatCurrency(
                 stats.total_sessions > 0 
@@ -320,9 +320,9 @@ export const UsageDashboard: React.FC<UsageDashboardProps> = ({ }) => {
         <div className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-heading-1">Usage Dashboard</h1>
+              <h1 className="text-heading-1">{t('usage.usageDashboard')}</h1>
               <p className="mt-1 text-body-small text-muted-foreground">
-                Track your Claude Code usage and costs
+                {t('usage.trackUsage')}
               </p>
             </div>
             {/* Date Range Filter */}
@@ -337,7 +337,7 @@ export const UsageDashboard: React.FC<UsageDashboardProps> = ({ }) => {
                     onClick={() => setSelectedDateRange(range)}
                     disabled={loading}
                   >
-                    {range === "all" ? t("dashboard.allTime") : range === "7d" ? t("dashboard.last7Days") : t("dashboard.last30Days")}
+                    {range === "all" ? t("usage.custom") : range === "7d" ? t("usage.last7Days") : t("usage.last30Days")}
                   </Button>
                 ))}
               </div>
@@ -369,32 +369,32 @@ export const UsageDashboard: React.FC<UsageDashboardProps> = ({ }) => {
                 setHasLoadedTabs(prev => new Set([...prev, value]));
               }} className="w-full">
                 <TabsList className="grid grid-cols-5 w-full mb-6 h-auto p-1">
-                  <TabsTrigger value="overview" className="py-2.5 px-3">Overview</TabsTrigger>
-                  <TabsTrigger value="models" className="py-2.5 px-3">By Model</TabsTrigger>
-                  <TabsTrigger value="projects" className="py-2.5 px-3">By Project</TabsTrigger>
-                  <TabsTrigger value="sessions" className="py-2.5 px-3">By Session</TabsTrigger>
-                  <TabsTrigger value="timeline" className="py-2.5 px-3">Timeline</TabsTrigger>
+                  <TabsTrigger value="overview" className="py-2.5 px-3">{t('usage.overview')}</TabsTrigger>
+                  <TabsTrigger value="models" className="py-2.5 px-3">{t('usage.byModel')}</TabsTrigger>
+                  <TabsTrigger value="projects" className="py-2.5 px-3">{t('usage.byProject')}</TabsTrigger>
+                  <TabsTrigger value="sessions" className="py-2.5 px-3">{t('usage.bySession')}</TabsTrigger>
+                  <TabsTrigger value="timeline" className="py-2.5 px-3">{t('usage.timeline')}</TabsTrigger>
                 </TabsList>
 
                 {/* Overview Tab */}
                 <TabsContent value="overview" className="space-y-6 mt-6">
                   <Card className="p-6">
-                    <h3 className="text-label mb-4">Token Breakdown</h3>
+                    <h3 className="text-label mb-4">{t('usage.tokenBreakdown')}</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div>
-                        <p className="text-caption text-muted-foreground">Input Tokens</p>
+                        <p className="text-caption text-muted-foreground">{t('usage.inputTokens')}</p>
                         <p className="text-heading-4">{formatTokens(stats.total_input_tokens)}</p>
                       </div>
                       <div>
-                        <p className="text-caption text-muted-foreground">Output Tokens</p>
+                        <p className="text-caption text-muted-foreground">{t('usage.outputTokens')}</p>
                         <p className="text-heading-4">{formatTokens(stats.total_output_tokens)}</p>
                       </div>
                       <div>
-                        <p className="text-caption text-muted-foreground">Cache Write</p>
+                        <p className="text-caption text-muted-foreground">{t('usage.cacheWrite')}</p>
                         <p className="text-heading-4">{formatTokens(stats.total_cache_creation_tokens)}</p>
                       </div>
                       <div>
-                        <p className="text-caption text-muted-foreground">Cache Read</p>
+                        <p className="text-caption text-muted-foreground">{t('usage.cacheRead')}</p>
                         <p className="text-heading-4">{formatTokens(stats.total_cache_read_tokens)}</p>
                       </div>
                     </div>
@@ -403,14 +403,14 @@ export const UsageDashboard: React.FC<UsageDashboardProps> = ({ }) => {
                   {/* Quick Stats */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Card className="p-6">
-                      <h3 className="text-label mb-4">Most Used Models</h3>
+                      <h3 className="text-label mb-4">{t('usage.mostUsedModels')}</h3>
                       <div className="space-y-3">
                         {mostUsedModels}
                       </div>
                     </Card>
 
                     <Card className="p-6">
-                      <h3 className="text-label mb-4">Top Projects</h3>
+                      <h3 className="text-label mb-4">{t('usage.topProjects')}</h3>
                       <div className="space-y-3">
                         {topProjects}
                       </div>

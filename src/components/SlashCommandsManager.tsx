@@ -576,7 +576,7 @@ export const SlashCommandsManager: React.FC<SlashCommandsManagerProps> = ({
               <p className="text-xs text-muted-foreground">
                 {commandForm.scope === 'user' 
                   ? t('commands.availableAllProjects')
-                  : t('commands.onlyThisProject')}}
+                  : t('commands.onlyThisProject')}
               </p>
             </div>
 

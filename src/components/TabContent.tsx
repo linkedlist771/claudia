@@ -19,6 +19,7 @@ const UsageDashboard = lazy(() => import('@/components/UsageDashboard').then(m =
 const MCPManager = lazy(() => import('@/components/MCPManager').then(m => ({ default: m.MCPManager })));
 const Settings = lazy(() => import('@/components/Settings').then(m => ({ default: m.Settings })));
 const MarkdownEditor = lazy(() => import('@/components/MarkdownEditor').then(m => ({ default: m.MarkdownEditor })));
+const EnvironmentDependencies = lazy(() => import('@/components/EnvironmentDependencies').then(m => ({ default: m.EnvironmentDependencies })));
 // const ClaudeFileEditor = lazy(() => import('@/components/ClaudeFileEditor').then(m => ({ default: m.ClaudeFileEditor })));
 
 // Import non-lazy components for projects view
@@ -361,6 +362,13 @@ const TabPanel: React.FC<TabPanelProps> = ({ tab, isActive }) => {
         return (
           <div className="h-full">
             <div className="p-4">Import agent functionality coming soon...</div>
+          </div>
+        );
+
+      case 'env-deps':
+        return (
+          <div className="h-full">
+            <EnvironmentDependencies />
           </div>
         );
       
